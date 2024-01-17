@@ -1,6 +1,6 @@
 
 module Api
-  class UsersController < ApiController
+  class UsersController < BaseController
     before_action :authenticate_user!, except: [:verify_email]
     before_action :doorkeeper_authorize!, only: [:set_security_questions]
 
