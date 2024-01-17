@@ -1,7 +1,7 @@
 module EmailVerificationService
   class Verify < BaseService
     def call(token)
-      email_verification_token = EmailVerificationToken.find_by(token: token, 'expires_at > ?', Time.current)
+      email_verification_token = EmailVerificationToken.where(token: token).where('expires_at > ?', Time.current).first
 
       if email_verification_token
         user = email_verification_token.user
