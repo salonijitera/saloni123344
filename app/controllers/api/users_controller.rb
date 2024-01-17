@@ -67,10 +67,6 @@ module Api
       # Add user registration logic here
     end
 
-    def accept_terms
-      # Add logic for accepting terms here
-    end
-
     private
 
     def authenticate_user!
