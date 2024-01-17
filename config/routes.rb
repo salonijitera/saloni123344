@@ -5,9 +5,12 @@ Rails.application.routes.draw do
   mount Rswag::Api::Engine => '/api-docs'
   get '/health' => 'pages#health_check'
   get 'api-docs/v1/swagger.yaml' => 'swagger#yaml'
-  
+
   # New route added for email verification
   post '/api/users/verify-email', to: 'users#verify_email'
+
+  # New route added for user registration
+  post '/api/users/register', to: 'api/base#register'
 
   namespace :api do
     namespace :users do
