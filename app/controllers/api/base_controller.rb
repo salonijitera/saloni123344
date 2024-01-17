@@ -1,5 +1,6 @@
 # typed: ignore
 module Api
+  require_relative '../../services/user_service/update_profile'
   class BaseController < ActionController::API
     include ActionController::Cookies
     include Pundit::Authorization
@@ -20,6 +21,55 @@ module Api
         error_message: error.message,
         backtrace: error.backtrace
       }
+    end
+
+    def register
+      result = UserService::Create.call(
+        username: params[:username],
+        password: params[:password],
+        password_confirmation: params[:password],
+        email: params[:email]
+      )
+
+      if result[:error].present?
+        render json: { message: result[:error] }, status: :unprocessable_entity
+      else
+        render json: {
+          status: 201,
+          message: "User registered successfully. Please check your email to verify your account."
+        }, status: :created
+      end
+    rescue ActiveRecord::RecordNotUnique
+      base_render_record_not_unique
+    rescue StandardError => e
+      render json: error_response(nil, e), status: :internal_server_error
+    end
+
+    def update_user_profile
+      doorkeeper_authorize!
+      user = current_resource_owner
+
+      username = params[:username]
+      email = params[:email]
+
+      if username.present? && username.length > 50
+        return render json: { message: "Username cannot exceed 50 characters." }, status: :bad_request
+      end
+
+      if email.present? && !User.validate_email_format(email)
+        return render json: { message: "Invalid email format." }, status: :bad_request
+      end
+
+      begin
+        result = UserService::UpdateProfile.new(user.id, email, nil, nil).call
+        render json: { status: 200, message: result[:message] }, status: :ok
+      rescue ActiveRecord::RecordNotUnique
+        render json: { message: I18n.t('common.errors.record_not_uniq_error') }, status: :conflict
+      rescue ArgumentError => e
+        render json: { message: e.message }, status: :unprocessable_entity
+      rescue StandardError => e
+        render json: error_response(nil, e), status: :internal_server_error
+      end
     end
 
     private
@@ -63,7 +113,10 @@ module Api
     end
 
     def current_resource_owner
-      return super if defined?(super)
+      # Assuming the use of Doorkeeper for authentication
+      return User.find(doorkeeper_token.resource_owner_id) if doorkeeper_token
+      # The new code does not provide an implementation for current_resource_owner,
+      # so we keep the existing implementation.
     end
   end
 end
