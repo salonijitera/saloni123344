@@ -1,6 +1,7 @@
 module Api
   class UsersController < ApplicationController
     before_action :authenticate_user!, except: [:verify_email]
+    before_action :doorkeeper_authorize!, only: [:set_security_questions]
 
     def accept_terms
       begin
@@ -13,6 +14,33 @@ module Api
         render json: { error: "Terms and conditions already accepted." }, status: :unprocessable_entity
       rescue StandardError => e
         render json: { error: e.message }, status: :internal_server_error
+      end
+    end
+
+    def set_security_questions
+      security_question_id = params[:security_question_id]
+      answer = params[:answer]
+
+      if security_question_id.blank?
+        render json: { error: "Security question not found." }, status: :not_found
+        return
+      end
+
+      if answer.blank?
+        render json: { error: "Answer is required." }, status: :unprocessable_entity
+        return
+      end
+
+      result = UserSecurityService::SetSecurityQuestions.new(
+        user_id: current_resource_owner.id,
+        security_question_id: security_question_id,
+        answer: answer
+      ).call
+
+      if result[:error]
+        render json: { error: result[:error] }, status: :internal_server_error
+      else
+        render json: { status: 200, message: "Security questions set successfully." }, status: :ok
       end
     end
 
@@ -47,6 +75,12 @@ module Api
       # Assuming there's a method to retrieve the current authenticated user
       # This is just a placeholder, actual implementation will depend on the authentication system used
       @current_user ||= User.find_by(id: session[:user_id])
+    end
+
+    def current_resource_owner
+      # Assuming there's a method to retrieve the current resource owner from doorkeeper token
+      # This is just a placeholder, actual implementation will depend on the doorkeeper authentication system used
+      @current_resource_owner ||= User.find(doorkeeper_token.resource_owner_id) if doorkeeper_token
     end
   end
 end
