@@ -1,3 +1,4 @@
+
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
@@ -11,10 +12,10 @@ Rails.application.routes.draw do
 
   post '/api/users/register', to: 'api/users#register'
 
-  namespace :api do
+  namespace :api, defaults: { format: :json } do
     namespace :users do
       # Existing route for accepting terms
-      post 'accept-terms', to: 'users#accept_terms'
+      post 'accept_terms', to: 'users#accept_terms'
       # New route for setting security questions
     end
   end

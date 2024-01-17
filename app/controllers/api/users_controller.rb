@@ -1,6 +1,6 @@
 
 module Api
-  class UsersController < BaseController
+  class UsersController < ApplicationController
     before_action :authenticate_user!, except: [:verify_email]
     before_action :doorkeeper_authorize!, only: [:set_security_questions]
 
@@ -65,6 +65,10 @@ module Api
 
     def register
       # Add user registration logic here
+    end
+
+    def accept_terms
+      # Add logic for accepting terms here
     end
 
     private
