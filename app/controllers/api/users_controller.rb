@@ -1,5 +1,6 @@
+
 module Api
-  class UsersController < ApplicationController
+  class UsersController < ApiController
     before_action :authenticate_user!, except: [:verify_email]
     before_action :doorkeeper_authorize!, only: [:set_security_questions]
 
@@ -60,6 +61,10 @@ module Api
       render json: { status: 400, message: e.message }, status: :bad_request
     rescue ActiveRecord::RecordNotFound
       render json: { status: 404, message: 'Token not found.' }, status: :not_found
+    end
+
+    def register
+      # Add user registration logic here
     end
 
     private

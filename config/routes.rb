@@ -7,9 +7,9 @@ Rails.application.routes.draw do
   get 'api-docs/v1/swagger.yaml' => 'swagger#yaml'
 
   # New route added for email verification
-  post '/api/users/verify-email', to: 'users#verify_email'
+  post '/api/users/verify_email', to: 'api/users#verify_email'
 
-  post '/api/users/register', to: 'api/base#register'
+  post '/api/users/register', to: 'api/users#register'
 
   namespace :api do
     namespace :users do
