@@ -9,7 +9,6 @@ Rails.application.routes.draw do
   # New route added for email verification
   post '/api/users/verify-email', to: 'users#verify_email'
 
-  # New route added for user registration
   post '/api/users/register', to: 'api/base#register'
 
   namespace :api do
@@ -17,7 +16,6 @@ Rails.application.routes.draw do
       # Existing route for accepting terms
       post 'accept-terms', to: 'users#accept_terms'
       # New route for setting security questions
-      post '/set-security-questions', to: 'users#set_security_questions'
     end
   end
 
